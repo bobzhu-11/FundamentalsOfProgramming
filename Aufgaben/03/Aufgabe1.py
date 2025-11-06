@@ -10,7 +10,7 @@ möchte kann auch Namen einlesen, aber das muss nicht sein.)
 Board = list[list[str]]
 
 
-def q_none_to_str(x: str) -> str:
+def q_none_to_str(x) -> str:
     return " " if x is None else x
 """
 (a) Schreiben Sie eine Funktion placeSign(<spieler>,<spielfeld>). Diese
@@ -21,6 +21,25 @@ Koordinate im Spielfeld zwischen (0,0) und (2,2). Behandeln Sie dabei die
 möglichen Fehler (Position außerhalb des Spielfelds, Position bereits besetzt)
 sinnvoll mittels try-except und if-else.
 """
+# Verarbeitung der Eingabe
+def parse_position(inp: str) -> tuple[int, int]:
+
+    s = inp.strip()
+    s = s.replace("(", "").replace(")", "")
+    s = s.replace(",", " ")
+    parts = [p for p in s.split() if p]
+    if len(parts) != 2:
+        raise ValueError("Bitte genau zwei Zahlen angeben.")
+    r, c = int(parts[0]), int(parts[1])
+    return r, c
+
+def in_bounds(r: int, c: int) -> bool:
+    return 0 <= r <= 2 and 0 <= c <= 2
+
+
+def board_full(spielfeld: Board) -> bool:
+    return all(cell is not None for row in spielfeld for cell in row)
+
 def placeSign(spieler: str, spielfeld: Board) -> Board:
 
     while True:
@@ -33,7 +52,6 @@ def placeSign(spieler: str, spielfeld: Board) -> Board:
             if spielfeld[r][c] is not None:
                 print("Diese Position ist bereits besetzt.")
                 continue
-            # 放置
             spielfeld[r][c] = spieler
             return spielfeld
         except ValueError as e:
@@ -49,7 +67,10 @@ setzen. Bedenken Sie, dass Sie None behandeln müssen.
 """
 
 def buildLine(reihe: list[str]) -> str:
-    return "|".join(q_none_to_str(ch) for ch in reihe)
+    parts = []
+    for ch in reihe:
+        parts.append(q_none_to_str(ch))
+    return "|".join(parts)
 """
 (c) Schreiben Sie eine Methode printBoard(<spielfeld>), die das Spielfeld ausgibt.
 Diese soll das gesamte Spielfeld darstellen. Nutzen Sie dafür auch Ihre
@@ -65,24 +86,7 @@ def printBoard(spielfeld: Board) -> None:
 
     for r in range(3):
         print(buildLine(spielfeld[r]))
-def parse_position(inp: str) -> tuple[int, int]:
 
-    s = inp.strip()
-    s = s.replace("(", "").replace(")", "")
-    s = s.replace(",", " ")
-    parts = [p for p in s.split() if p]
-    if len(parts) != 2:
-        raise ValueError("Bitte genau zwei Zahlen angeben.")
-    r, c = int(parts[0]), int(parts[1])
-    return r, c
-
-
-def in_bounds(r: int, c: int) -> bool:
-    return 0 <= r <= 2 and 0 <= c <= 2
-
-
-def board_full(spielfeld: Board) -> bool:
-    return all(cell is not None for row in spielfeld for cell in row)
 
 """
 (d) Schreiben Sie eine Funktion checkWin(<spielfeld>). Diese bekommt das
@@ -119,7 +123,12 @@ aus (a)-(d), zwei Spieler:innen ein Tic Tac Toe Spiel spielen lässt.
 def ticTacToe() -> None:
 
     spielfeld: Board = [[None for _ in range(3)] for _ in range(3)]
-    aktueller_spieler = "x"  # Spieler:in 1
+    # for _ in range(3):
+    # row = []
+    # for _ in range(3):
+    #     row.append(None)
+    # board.append(row)
+    # aktueller_spieler = "x"  # Spieler:in 1
 
     while True:
         print("\nAktuelles Spielfeld:")
